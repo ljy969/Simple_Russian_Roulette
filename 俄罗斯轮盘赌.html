@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>俄罗斯轮盘赌</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    margin-top: 50px;
+    background-color: #f7f7f7;
+  }
+
+  h1 {
+    color: #333;
+    font-size: 2em;
+  }
+
+  p {
+    color: #666;
+    font-size: 1em;
+  }
+
+  .control-panel {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 500px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .input-group {
+    margin: 15px 0;
+  }
+
+  label {
+    display: inline-block;
+    width: 120px;
+    text-align: right;
+    margin-right: 10px;
+  }
+
+  input {
+    padding: 8px;
+    width: 60px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 10px;
+    transition: background-color 0.3s;
+  }
+
+  button:hover {
+    background-color: #f0f0f0;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  #result {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 20px;
+    min-height: 30px;
+  }
+
+  .bullet-info {
+    font-size: 1.2em;
+    margin: 15px 0;
+  }
+</style>
+</head>
+<body>
+<h1>自定义俄罗斯转盘游戏</h1>
+
+<div class="control-panel">
+  <div class="input-group">
+    <label for="totalInput">子弹总数:</label>
+    <input type="number" id="totalInput" min="2" max="20" value="6">
+  </div>
+  
+  <div class="input-group">
+    <label for="liveInput">实弹数量:</label>
+    <input type="number" id="liveInput" min="1" max="19" value="1">
+  </div>
+  
+  <div class="input-group">
+    <label for="emptyInput">虚弹数量:</label>
+    <input type="number" id="emptyInput" min="1" max="19" value="5" disabled>
+  </div>
+  
+  <button id="setupBtn">设置子弹</button>
+  <button id="randomBtn">随机设置</button>
+</div>
+
+<div class="bullet-info">
+  <p>子弹总数: <span id="totalBullets">6</span>颗</p>
+  <p>实弹数量: <span id="liveBullets">1</span>颗</p>
+  <p>虚弹数量: <span id="emptyBullets">5</span>颗</p>
+</div>
+
+<div id="result">等待开始...</div>
+
+<button id="trigger">扣动扳机</button>
+<button id="reload">重新装弹</button>
+<button id="spinButton">转动轮盘</button>
+
+<script>
+// 游戏状态变量
+let totalBullets = 6;
+let liveBullets = 1;
+let emptyBullets = 5;
+let gameActive = false;
+
+// DOM元素
+const totalInput = document.getElementById('totalInput');
+const liveInput = document.getElementById('liveInput');
+const emptyInput = document.getElementById('emptyInput');
+const totalDisplay = document.getElementById('totalBullets');
+const liveDisplay = document.getElementById('liveBullets');
+const emptyDisplay = document.getElementById('emptyBullets');
+const resultDisplay = document.getElementById('result');
+const triggerBtn = document.getElementById('trigger');
+const reloadBtn = document.getElementById('reload');
+const setupBtn = document.getElementById('setupBtn');
+const randomBtn = document.getElementById('randomBtn');
+const spinBtn = document.getElementById('spinButton');
+
+// 初始化游戏
+function initGame() {
+  updateBulletDisplays();
+  gameActive = true;
+  triggerBtn.disabled = false;
+  resultDisplay.textContent = "游戏就绪";
+  resultDisplay.style.color = "#333";
+}
+
+// 更新子弹显示
+function updateBulletDisplays() {
+  totalDisplay.textContent = totalBullets;
+  liveDisplay.textContent = liveBullets;
+  emptyDisplay.textContent = emptyBullets;
+}
+
+// 设置自定义子弹
+function setupCustomBullets() {
+  const newTotal = parseInt(totalInput.value);
+  const newLive = parseInt(liveInput.value);
+  
+  // 验证输入
+  if (isNaN(newTotal) || isNaN(newLive)) {
+    alert("请输入有效的数字");
+    return;
+  }
+  
+  if (newLive >= newTotal) {
+    alert("实弹数量必须小于子弹总数");
+    return;
+  }
+  
+  if (newLive < 1 || newTotal < 2) {
+    alert("实弹数量至少为1，子弹总数至少为2");
+    return;
+  }
+  
+  totalBullets = newTotal;
+  liveBullets = newLive;
+  emptyBullets = newTotal - newLive;
+  
+  initGame();
+}
+
+// 随机设置子弹
+function setupRandomBullets() {
+  totalBullets = Math.floor(Math.random() * 10) + 3; // 3-12颗子弹
+  liveBullets = Math.floor(Math.random() * (totalBullets - 1)) + 1; // 至少1颗实弹
+  emptyBullets = totalBullets - liveBullets;
+  
+  // 更新输入框
+  totalInput.value = totalBullets;
+  liveInput.value = liveBullets;
+  emptyInput.value = emptyBullets;
+  
+  initGame();
+}
+
+// 扣动扳机
+function pullTrigger() {
+  if (!gameActive || totalBullets <= 0) return;
+  
+  // 计算中弹概率
+  const hit = Math.random() < (liveBullets / totalBullets);
+  
+  if (hit) {
+    // 中弹
+    resultDisplay.textContent = "中弹！";
+    resultDisplay.style.color = "red";
+    playSound("https://www.soundjay.com/misc/sounds/gun-shot-01.mp3");
+    liveBullets--;
+  } else {
+    // 安全
+    resultDisplay.textContent = "安全！";
+    resultDisplay.style.color = "green";
+    playSound("https://www.soundjay.com/mechanical/sounds/revolver-cylinder-01.mp3");
+    emptyBullets--;
+  }
+  
+  totalBullets--;
+  updateBulletDisplays();
+  
+  // 检查游戏是否结束
+  if (totalBullets <= 0) {
+    gameActive = false;
+    triggerBtn.disabled = true;
+    setTimeout(() => {
+      alert("所有子弹已发射完毕！");
+    }, 500);
+  }
+}
+
+// 重新装弹
+function reloadChamber() {
+  if (confirm("确定要重新装弹吗？当前游戏进度将丢失。")) {
+    setupCustomBullets();
+  }
+}
+
+// 播放音效
+function playSound(url) {
+  try {
+    const audio = new Audio(url);
+    audio.play().catch(e => console.log("音效播放被阻止:", e));
+  } catch (e) {
+    console.log("音效加载错误:", e);
+  }
+}
+
+// 转动轮盘
+function spinChamber() {
+  if (!gameActive) {
+    alert("请先设置子弹！");
+    return;
+  }
+  
+  playSound("https://www.soundjay.com/mechanical/sounds/revolver-spin-01.mp3");
+  resultDisplay.textContent = "轮盘转动中...";
+  resultDisplay.style.color = "#333";
+  
+  // 模拟转动延迟
+  setTimeout(() => {
+    resultDisplay.textContent = "轮盘已就位";
+  }, 1500);
+}
+
+// 事件监听
+setupBtn.addEventListener('click', setupCustomBullets);
+randomBtn.addEventListener('click', setupRandomBullets);
+triggerBtn.addEventListener('click', pullTrigger);
+reloadBtn.addEventListener('click', reloadChamber);
+spinBtn.addEventListener('click', spinChamber);
+
+// 输入框联动
+totalInput.addEventListener('input', function() {
+  const total = parseInt(this.value) || 0;
+  const live = parseInt(liveInput.value) || 0;
+  
+  if (total > 0) {
+    emptyInput.value = total - live;
+  }
+});
+
+liveInput.addEventListener('input', function() {
+  const live = parseInt(this.value) || 0;
+  const total = parseInt(totalInput.value) || 0;
+  
+  if (total > 0) {
+    emptyInput.value = total - live;
+  }
+});
+
+// 初始游戏设置
+initGame();
+</script>
+</body>
+</html>
