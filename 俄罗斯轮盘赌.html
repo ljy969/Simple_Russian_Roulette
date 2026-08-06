@@ -1,51 +1,175 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="auto">
 <head>
 <meta charset="UTF-8">
 <title>俄罗斯轮盘赌</title>
 <style>
+  /* ===== 浅色主题（默认） ===== */
+  :root {
+    color-scheme: light;
+    --bg-color: #f7f7f7;
+    --text-color: #333333;
+    --text-secondary: #666666;
+    --card-bg: #ffffff;
+    --card-border: #dddddd;
+    --input-bg: #ffffff;
+    --input-border: #dddddd;
+    --btn-bg: #ffffff;
+    --btn-border: #dddddd;
+    --btn-hover-bg: #f0f0f0;
+    --shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --danger: #e74c3c;
+    --success: #27ae60;
+    --theme-active-bg: #333333;
+    --theme-active-color: #ffffff;
+  }
+
+  /* ===== 手动深色主题 ===== */
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --card-bg: #1e1e1e;
+    --card-border: #333333;
+    --input-bg: #2a2a2a;
+    --input-border: #444444;
+    --btn-bg: #2a2a2a;
+    --btn-border: #444444;
+    --btn-hover-bg: #3a3a3a;
+    --shadow: 0 2px 8px rgba(0,0,0,0.5);
+    --danger: #ff6b6b;
+    --success: #51cf66;
+    --theme-active-bg: #e0e0e0;
+    --theme-active-color: #121212;
+  }
+
+  /* ===== 跟随系统深色 ===== */
+  @media (prefers-color-scheme: dark) {
+    [data-theme="auto"] {
+      color-scheme: dark;
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --text-secondary: #a0a0a0;
+      --card-bg: #1e1e1e;
+      --card-border: #333333;
+      --input-bg: #2a2a2a;
+      --input-border: #444444;
+      --btn-bg: #2a2a2a;
+      --btn-border: #444444;
+      --btn-hover-bg: #3a3a3a;
+      --shadow: 0 2px 8px rgba(0,0,0,0.5);
+      --danger: #ff6b6b;
+      --success: #51cf66;
+      --theme-active-bg: #e0e0e0;
+      --theme-active-color: #121212;
+    }
+  }
+
+  /* ===== 基础样式 ===== */
   body {
     font-family: 'Arial', sans-serif;
     text-align: center;
     margin-top: 50px;
-    background-color: #f7f7f7;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  h1 {
-    color: #333;
-    font-size: 2em;
+  h1 { color: var(--text-color); font-size: 2em; }
+  p  { color: var(--text-secondary); font-size: 1em; }
+
+  /* ===== 主题切换器 ===== */
+  .theme-switcher {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    display: flex;
+    gap: 6px;
+    z-index: 100;
   }
 
-  p {
-    color: #666;
-    font-size: 1em;
+  .theme-btn {
+    width: 40px; height: 40px;
+    font-size: 1.2em;
+    border-radius: 50%;
+    border: 2px solid var(--card-border);
+    background-color: var(--card-bg);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0; margin: 0;
   }
 
+  .theme-btn:hover {
+    border-color: var(--text-secondary);
+    transform: scale(1.1);
+  }
+
+  .theme-btn.active {
+    background-color: var(--theme-active-bg);
+    border-color: var(--theme-active-bg);
+  }
+
+  /* ===== 控制面板 ===== */
   .control-panel {
-    background-color: #fff;
-    border: 1px solid #ddd;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 8px;
     padding: 20px;
     margin: 20px auto;
     max-width: 500px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
 
-  .input-group {
-    margin: 15px 0;
-  }
+  .input-group { margin: 15px 0; }
 
   label {
     display: inline-block;
     width: 120px;
     text-align: right;
     margin-right: 10px;
+    color: var(--text-color);
   }
 
   input {
-    padding: 8px;
-    width: 60px;
-    border: 1px solid #ddd;
+    padding: 8px; width: 60px;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  /* ===== 按钮 ===== */
+  button {
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: var(--btn-bg);
+    color: var(--text-color);
+    border: 1px solid var(--btn-border);
+    border-radius: 4px;
+    margin: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  button:hover { background-color: var(--btn-hover-bg); }
+  button:disabled { cursor: not-allowed; opacity: 0.6; }
+
+  /* ===== 结果与信息 ===== */
+  #result {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 20px;
+    min-height: 30px;
+    color: var(--text-color);
+  }
+
+  .bullet-info { font-size: 1.2em; margin: 15px 0; color: var(--text-color); }
+  .bullet-info p { color: var(--text-color); }
+
     border-radius: 4px;
   }
 
@@ -83,6 +207,12 @@
 </style>
 </head>
 <body>
+<div class="theme-switcher">
+  <button class="theme-btn" data-theme="light" title="浅色模式">☀️</button>
+  <button class="theme-btn" data-theme="dark" title="深色模式">🌙</button>
+  <button class="theme-btn active" data-theme="auto" title="跟随系统">💻</button>
+</div>
+
 <h1>自定义俄罗斯转盘游戏</h1>
 
 <div class="control-panel">
@@ -123,6 +253,8 @@ let totalBullets = 6;
 let liveBullets = 1;
 let emptyBullets = 5;
 let gameActive = false;
+let chamber = []; // 弹巢数组，true=实弹，false=空包弹
+let currentIndex = 0;
 
 // DOM元素
 const totalInput = document.getElementById('totalInput');
@@ -138,13 +270,23 @@ const setupBtn = document.getElementById('setupBtn');
 const randomBtn = document.getElementById('randomBtn');
 const spinBtn = document.getElementById('spinButton');
 
-// 初始化游戏
+// 初始化游戏（构建并洗牌）
 function initGame() {
-  updateBulletDisplays();
+  // 构建弹巢数组
+  chamber = Array(liveBullets).fill(true).concat(Array(emptyBullets).fill(false));
+  
+  // Fisher-Yates 洗牌算法
+  for (let i = chamber.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [chamber[i], chamber[j]] = [chamber[j], chamber[i]];
+  }
+  
+  currentIndex = 0;
   gameActive = true;
   triggerBtn.disabled = false;
-  resultDisplay.textContent = "游戏就绪";
-  resultDisplay.style.color = "#333";
+  updateBulletDisplays();
+  resultDisplay.textContent = "子弹已上膛，等待扣动扳机...";
+  resultDisplay.style.color = "var(--text-color)";
 }
 
 // 更新子弹显示
@@ -196,32 +338,30 @@ function setupRandomBullets() {
   initGame();
 }
 
-// 扣动扳机
+// 扣动扳机（无放回抽样）
 function pullTrigger() {
-  if (!gameActive || totalBullets <= 0) return;
+  if (!gameActive || currentIndex >= chamber.length) return;
   
-  // 计算中弹概率
-  const hit = Math.random() < (liveBullets / totalBullets);
+  const isLive = chamber[currentIndex];
+  currentIndex++;
+  totalBullets--;
   
-  if (hit) {
-    // 中弹
-    resultDisplay.textContent = "中弹！";
+  if (isLive) {
+    liveBullets--;
+    resultDisplay.textContent = "💥 砰！中弹了！";
     resultDisplay.style.color = "red";
     playSound("https://www.soundjay.com/misc/sounds/gun-shot-01.mp3");
-    liveBullets--;
   } else {
-    // 安全
-    resultDisplay.textContent = "安全！";
+    emptyBullets--;
+    resultDisplay.textContent = "😌 咔哒... 是空包弹";
     resultDisplay.style.color = "green";
     playSound("https://www.soundjay.com/mechanical/sounds/revolver-cylinder-01.mp3");
-    emptyBullets--;
   }
   
-  totalBullets--;
   updateBulletDisplays();
   
   // 检查游戏是否结束
-  if (totalBullets <= 0) {
+  if (currentIndex >= chamber.length) {
     gameActive = false;
     triggerBtn.disabled = true;
     setTimeout(() => {
@@ -247,7 +387,7 @@ function playSound(url) {
   }
 }
 
-// 转动轮盘
+// 转动轮盘（真正重置弹巢顺序）
 function spinChamber() {
   if (!gameActive) {
     alert("请先设置子弹！");
@@ -255,12 +395,12 @@ function spinChamber() {
   }
   
   playSound("https://www.soundjay.com/mechanical/sounds/revolver-spin-01.mp3");
-  resultDisplay.textContent = "轮盘转动中...";
-  resultDisplay.style.color = "#333";
+  resultDisplay.textContent = "🔄 轮盘转动中...";
+  resultDisplay.style.color = "var(--text-color)";
   
-  // 模拟转动延迟
   setTimeout(() => {
-    resultDisplay.textContent = "轮盘已就位";
+    initGame(); // 重新洗牌并重置索引
+    resultDisplay.textContent = "轮盘已重新就位";
   }, 1500);
 }
 
@@ -271,23 +411,55 @@ triggerBtn.addEventListener('click', pullTrigger);
 reloadBtn.addEventListener('click', reloadChamber);
 spinBtn.addEventListener('click', spinChamber);
 
-// 输入框联动
+// 输入框联动与边界修正
 totalInput.addEventListener('input', function() {
   const total = parseInt(this.value) || 0;
-  const live = parseInt(liveInput.value) || 0;
+  let live = parseInt(liveInput.value) || 0;
   
+  if (total > 0 && live >= total) {
+    live = total - 1;
+    liveInput.value = live;
+  }
   if (total > 0) {
     emptyInput.value = total - live;
   }
 });
 
 liveInput.addEventListener('input', function() {
-  const live = parseInt(this.value) || 0;
+  let live = parseInt(this.value) || 0;
   const total = parseInt(totalInput.value) || 0;
   
+  if (total > 0 && live >= total) {
+    live = total - 1;
+    this.value = live;
+  }
   if (total > 0) {
     emptyInput.value = total - live;
   }
+});
+
+// ===== 主题切换 =====
+const themeBtns = document.querySelectorAll('.theme-btn');
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  themeBtns.forEach(function(btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-theme') === theme);
+  });
+  try { localStorage.setItem('rr-theme', theme); } catch(e) {}
+}
+
+// 读取上次选择，默认跟随系统
+(function() {
+  var saved = 'auto';
+  try { saved = localStorage.getItem('rr-theme') || 'auto'; } catch(e) {}
+  applyTheme(saved);
+})();
+
+themeBtns.forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    applyTheme(this.getAttribute('data-theme'));
+  });
 });
 
 // 初始游戏设置
